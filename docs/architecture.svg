@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Application-owned inference fallback</title>
+  <desc id="desc">A user signs into the application. Its backend checks access and runs the fallback library. The library calls one configured primary workspace and may call a configured backup under explicit replay policy. A separate token callback supplies each destination credential. Two workspace URLs do not prove regional independence.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <style>
+      text { font-family: 'Chalkboard SE', 'Comic Sans MS', sans-serif; fill: #263442; }
+      .title { font-size: 31px; font-weight: 700; }
+      .head { font-size: 24px; font-weight: 700; }
+      .body { font-size: 21px; }
+      .small { font-size: 19px; }
+      .note { font-size: 21px; font-weight: 700; }
+      .line { fill: none; stroke: #475569; stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; }
+      .sketch { fill: none; stroke: #64748b; stroke-width: 1; opacity: .38; }
+    </style>
+  </defs>
+  <rect width="1440" height="900" fill="#ffffff"/>
+  <text class="title" x="40" y="49">Application-owned inference fallback</text>
+  <text class="body" x="40" y="81">Reference integration. Confirm the deployed topology and run the acceptance tests.</text>
+
+  <path d="M43 152 Q40 145 50 144 L269 146 Q278 146 277 156 L278 300 Q277 310 267 309 L48 310 Q38 307 41 298 Z" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/>
+  <path class="sketch" d="M44 148 L273 150 L274 306 L43 306 Z"/>
+  <text class="head" x="67" y="188">Application user</text>
+  <text class="body" x="67" y="229">Signs into your app</text>
+  <text class="small" x="67" y="263">User session stays</text>
+  <text class="small" x="67" y="290">at the app boundary</text>
+  <path class="line" d="M279 223 Q308 220 339 223" marker-end="url(#arrow)"/>
+
+  <path d="M356 122 Q346 121 346 133 L348 548 Q348 560 361 559 L842 557 Q852 557 851 544 L850 134 Q850 122 838 123 Z" fill="#eef5ff" stroke="#3469a3" stroke-width="2.6"/>
+  <path d="M351 126 L846 126 L847 552 L352 555 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".28"/>
+  <text class="head" x="377" y="165">Your application backend</text>
+  <text class="small" x="377" y="197">Library runs here. No notebook required.</text>
+
+  <path d="M376 222 L820 220 L818 313 L377 315 Z" fill="#fff" stroke="#3469a3" stroke-width="2"/>
+  <text class="body" x="396" y="254">1. Verify session and authorize request</text>
+  <text class="small" x="396" y="285">Check tenant, feature and data access</text>
+  <path class="line" d="M593 316 Q590 330 593 342" marker-end="url(#arrow)"/>
+
+  <path d="M377 351 L819 349 L820 510 L375 511 Z" fill="#fff" stroke="#3469a3" stroke-width="2.2"/>
+  <text class="head" x="396" y="387">FailoverClient</text>
+  <text class="body" x="396" y="424">2. Try primary once</text>
+  <text class="body" x="396" y="459">3. Backup only if policy + replay allow</text>
+  <text class="small" x="396" y="493">Return text + attempt metadata, or error</text>
+
+  <path d="M1045 126 L1388 129 L1386 303 L1042 302 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.6"/>
+  <path d="M1048 131 L1382 134 L1383 299 L1047 297 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".3"/>
+  <text class="head" x="1067" y="168">Primary workspace URL</text>
+  <text class="body" x="1067" y="208">Configured model service</text>
+  <text class="small" x="1067" y="246">Caller grants + owner access</text>
+  <text class="small" x="1067" y="276">Gateway and model destination</text>
+
+  <path d="M1046 363 L1386 360 L1387 539 L1044 538 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.6"/>
+  <path d="M1049 367 L1381 365 L1383 534 L1048 533 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".3"/>
+  <text class="head" x="1067" y="402">Backup workspace URL</text>
+  <text class="body" x="1067" y="444">Configured model service</text>
+  <text class="small" x="1067" y="481">Validate grants and capacity</text>
+  <text class="small" x="1067" y="512">before enabling fallback</text>
+
+  <path class="line" d="M852 370 L918 370 Q931 370 931 357 L931 222 L1040 221" marker-end="url(#arrow)"/>
+  <text class="small" x="876" y="184">Primary</text>
+  <text class="small" x="876" y="209">credential</text>
+  <path class="line" d="M852 457 Q940 453 1039 456" marker-end="url(#arrow)"/>
+  <text class="small" x="878" y="496">Backup</text>
+  <text class="small" x="878" y="522">credential</text>
+
+  <path d="M348 618 L851 620 L850 752 L348 751 Z" fill="#fff8e9" stroke="#9c7134" stroke-width="2.5"/>
+  <text class="head" x="371" y="654">Two destination token callbacks</text>
+  <text class="body" x="371" y="692">App supplies acquisition + refresh</text>
+  <text class="small" x="371" y="727">Credentials stay in the backend</text>
+  <path class="line" d="M595 618 Q592 588 595 563" marker-end="url(#arrow)"/>
+
+  <text class="small" x="1038" y="631">Both routes need tested identity,</text>
+  <text class="small" x="1038" y="660">model compatibility, data policy</text>
+  <text class="small" x="1038" y="689">and recovery behavior.</text>
+  <text class="small" x="40" y="650">App identity and</text>
+  <text class="small" x="40" y="679">Databricks caller identity</text>
+  <text class="small" x="40" y="708">are separate decisions.</text>
+
+  <path d="M40 803 Q690 799 1390 804" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+  <text class="note" x="41" y="840">Two configured workspace URLs do not prove independent inference regions.</text>
+  <text class="small" x="41" y="873">Every new operation starts at primary. No stream resume, tool execution or exactly-once guarantee.</text>
+</svg>
