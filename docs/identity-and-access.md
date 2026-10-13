@@ -2,6 +2,8 @@
 
 There are two separate identities in this design: the person using your application and the principal calling Databricks. Decide which principal should call the model before enabling fallback.
 
+For a first-time explanation and a request-flow diagram, read [how authentication works](start-here.md#how-authentication-works). The generic OAuth example and a Databricks App's automatic service principal are different integration choices. This repository has not deployed or tested a Databricks App.
+
 ## Recommended starting pattern
 
 Use application authentication for the user, application authorization for the requested action and data, and a dedicated service principal for backend inference. A Databricks service principal is an application identity with its own resource permissions. [Service principals](https://learn.microsoft.com/en-us/azure/databricks/admin/users-groups/service-principals).

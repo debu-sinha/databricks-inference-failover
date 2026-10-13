@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1030" viewBox="0 0 1440 1030" role="img" aria-labelledby="title desc">
+<title id="title">Two identities, one model request</title><desc id="desc">Proposed integration. The application verifies the signed-in user and runs the library in its Python backend. A separate service principal identifies the backend to Databricks. Destination-specific token callbacks supply the primary and backup credentials. The library does not forward the user session.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>text {font-family: 'Chalkboard SE', 'Comic Sans MS', sans-serif;fill:#263442} .title {font-size:33px;font-weight:700} .head {font-size:26px;font-weight:700} .body {font-size:23px} .small {font-size:22px} .note {font-size:24px;font-weight:700} .line {fill:none;stroke:#475569;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round} </style></defs>
+<rect width="1440" height="1030" fill="white"/>
+<text class="title" x="40" y="52">Two identities, one model request</text>
+<text class="body" x="40" y="91">Proposed integration. Hosting and credentials must be configured before use.</text>
+<path d="M48 175 L287 173 Q296 174 295 185 L294 363 Q294 373 283 372 L47 371 Q39 371 40 359 L41 185 Q39 174 48 175 Z" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/><path d="M45 179 L290 178 L289 367 L46 366 Z" fill="none" stroke="#475569" stroke-width="1" opacity=".26"/>
+<text class="head" x="61" y="215">1. Application user</text>
+<text class="body" x="61" y="259">Signs into your app</text>
+<text class="body" x="61" y="292">with your chosen</text>
+<text class="body" x="61" y="325">login provider</text>
+<path d="M363 129 L957 127 Q966 128 965 139 L964 797 Q964 807 953 806 L362 805 Q354 805 355 793 L356 139 Q354 128 363 129 Z" fill="#eef5ff" stroke="#3469a3" stroke-width="2.5"/><path d="M360 133 L960 132 L959 801 L361 800 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".26"/>
+<text class="head" x="380" y="169">Your Python backend</text>
+<text class="small" x="380" y="205">Existing app or proposed Databricks App</text>
+<path d="M391 233 L927 231 Q936 232 935 243 L934 319 Q934 329 923 328 L390 327 Q382 327 383 315 L384 243 Q382 232 391 233 Z" fill="#fff" stroke="#3469a3" stroke-width="2.5"/><path d="M388 237 L930 236 L929 323 L389 322 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".26"/>
+<text class="head" x="405" y="270">2. Your app checks access</text>
+<text class="small" x="405" y="306">Verify login, tenant and allowed actions</text>
+<path class="line" d="M 296 278 Q 327 276 377 278" marker-end="url(#arrow)"/><path class="line" d="M 655 329 L 655 359" marker-end="url(#arrow)"/><path d="M391 372 L927 370 Q936 371 935 382 L934 524 Q934 534 923 533 L390 532 Q382 532 383 520 L384 382 Q382 371 391 372 Z" fill="#fff" stroke="#3469a3" stroke-width="2.5"/><path d="M388 376 L930 375 L929 528 L389 527 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".26"/>
+<text class="head" x="405" y="410">4. Library sends the model request</text>
+<text class="body" x="405" y="452">Try the primary route once</text>
+<text class="small" x="405" y="490">Backup only if policy allows and replay is safe</text>
+<path d="M391 601 L927 599 Q936 600 935 611 L934 761 Q934 771 923 770 L390 769 Q382 769 383 757 L384 611 Q382 600 391 601 Z" fill="#fff8e9" stroke="#9c7134" stroke-width="2.5"/><path d="M388 605 L930 604 L929 765 L389 764 Z" fill="none" stroke="#9c7134" stroke-width="1" opacity=".26"/>
+<text class="head" x="405" y="638">3. Backend identity: service principal</text>
+<text class="small" x="405" y="676">SDK signs in for each configured workspace</text>
+<text class="small" x="405" y="708">Your token callback supplies that route&#x27;s token</text>
+<text class="small" x="405" y="740">Credentials and token refresh stay in backend</text>
+<path class="line" d="M 655 598 L 655 539" marker-end="url(#arrow)"/><text class="small" x="688" y="572">Bearer token</text>
+<path d="M1049 304 L1392 302 Q1401 303 1400 314 L1399 486 Q1399 496 1388 495 L1048 494 Q1040 494 1041 482 L1042 314 Q1040 303 1049 304 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.5"/><path d="M1046 308 L1395 307 L1394 490 L1047 489 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".26"/>
+<text class="head" x="1063" y="344">Primary workspace</text>
+<text class="small" x="1063" y="385">Configured model service</text>
+<text class="small" x="1063" y="419">Primary credential context</text>
+<text class="small" x="1063" y="453">Service checks caller access</text>
+<path class="line" d="M 936 428 L 991 428 Q 1002 428 1002 416 L 1002 395 L 1035 395" marker-end="url(#arrow)"/><path d="M1049 609 L1392 607 Q1401 608 1400 619 L1399 791 Q1399 801 1388 800 L1048 799 Q1040 799 1041 787 L1042 619 Q1040 608 1049 609 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.5"/><path d="M1046 613 L1395 612 L1394 795 L1047 794 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".26"/>
+<text class="head" x="1063" y="649">Backup workspace</text>
+<text class="small" x="1063" y="690">Configured model service</text>
+<text class="small" x="1063" y="724">Backup credential context</text>
+<text class="small" x="1063" y="758">Service checks caller access</text>
+<path class="line" d="M 936 488 L 985 488 Q 997 488 997 500 L 997 696 L 1035 696" marker-end="url(#arrow)" stroke-dasharray="8 7"/><text class="small" x="1051" y="543">Backup is conditional</text>
+<text class="small" x="1051" y="574">and attempted at most once</text>
+<path d="M 40 850 Q 720 846 1400 851" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text class="note" x="40" y="893">The user session stays with your app. The library does not forward it.</text>
+<text class="body" x="40" y="933">A service principal is the backend&#x27;s Databricks identity. Configure access for each route.</text>
+<text class="small" x="40" y="974">Each route has its own token provider. The integration may use one or two service principals.</text>
+</svg>

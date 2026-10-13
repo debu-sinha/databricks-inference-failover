@@ -1,5 +1,7 @@
 # Set up and test
 
+Read [what you need to build](start-here.md) first. It separates hosted pay-per-token, eligible provisioned throughput and external-provider setup, explains user versus backend identity, and lists the infrastructure this library does not create.
+
 Start locally. You need Python 3.11 or later and a terminal. You do not need a notebook, Spark cluster or Databricks credentials for the offline demonstration.
 
 ## 1. Install and run offline
@@ -39,6 +41,8 @@ databricks ai-gateway get-model-service 'model-services/<catalog>.<schema>.<serv
 Replace every placeholder. Repeat with the separately selected backup profile. A successful configuration read does not prove the inference caller has access. [Model Service API](https://docs.databricks.com/api/ai-gateway/v1/model-service).
 
 ## 3. Set route configuration and preview
+
+These settings select two existing model services. They do not create resources, select PPT versus PT or pin inference to a region.
 
 The examples read environment variables. They do not load a `.env` file. Set these four nonsecret values in your shell, replacing the placeholders with approved configuration:
 

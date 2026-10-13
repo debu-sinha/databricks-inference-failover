@@ -1,10 +1,22 @@
 # Databricks inference failover
 
-A small Python library for applications that need to call a backup Unity Gateway workspace route when a primary request fails.
+A Python library that runs inside your application and can try a configured backup model-service route when the primary request fails.
 
 **Status: reference implementation. Live deployment acceptance is pending.** The library controls application requests. It does not provision a model, reserve capacity, configure Gateway fallback or establish that two routes use independent regions. Read the [validation record](docs/validation.md) before using it in production.
 
-## Start here
+## What we are proposing
+
+You keep your application. Its Python backend imports this library and calls a primary model service. If an approved failure occurs and repeating the request is safe, the library can make one attempt at a backup service. The application receives the completed text or an error.
+
+You provide two working routes, credentials and permissions for each, enough backup capacity, and an application that stays available during the failure you want to cover. This package does not create that infrastructure. It needs no notebook or Spark cluster.
+
+An application using the library could run as a Databricks App. That is an optional hosting choice. This repository does not deploy an App, implement user sign-in or include a tested Apps-specific authentication setup.
+
+**Read the [first-time setup guide](docs/start-here.md) before configuring anything.** It explains the two identities, the setup you own, hosted pay-per-token versus provisioned throughput, and what the tests do and do not prove.
+
+![What you prepare, what the library handles, and what you operate](docs/setup-ownership.png)
+
+## Try the library locally
 
 Use Python 3.11 or later. Clone the repository using an account with access, then install the package locally.
 

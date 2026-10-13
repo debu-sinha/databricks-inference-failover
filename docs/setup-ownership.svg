@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1030" viewBox="0 0 1440 1030" role="img" aria-labelledby="title desc">
+<title id="title">Set up the routes before using the library</title><desc id="desc">The application owner prepares identity, working services, capacity and approved processing locations. The library attempts the primary and may attempt one backup under explicit failure and replay policy. The owner handles user access, monitoring, application availability and real failure and recovery tests. Pay-per-token services and provisioned throughput need different model and capacity setup.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>text {font-family: 'Chalkboard SE', 'Comic Sans MS', sans-serif;fill:#263442} .title {font-size:33px;font-weight:700} .head {font-size:26px;font-weight:700} .body {font-size:23px} .small {font-size:22px} .note {font-size:24px;font-weight:700} .line {fill:none;stroke:#475569;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round} </style></defs>
+<rect width="1440" height="1030" fill="white"/>
+<text class="title" x="40" y="52">Set up the routes before using the library</text>
+<text class="body" x="40" y="92">This library changes where a request is sent. It does not create your DR environment.</text>
+<path d="M48 156 L456 154 Q465 155 464 166 L463 560 Q463 570 452 569 L47 568 Q39 568 40 556 L41 166 Q39 155 48 156 Z" fill="#eef5ff" stroke="#3469a3" stroke-width="2.5"/><path d="M45 160 L459 159 L458 564 L46 563 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".26"/>
+<path d="M517 156 L926 154 Q935 155 934 166 L933 560 Q933 570 922 569 L516 568 Q508 568 509 556 L510 166 Q508 155 517 156 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.5"/><path d="M514 160 L929 159 L928 564 L515 563 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".26"/>
+<path d="M987 156 L1392 154 Q1401 155 1400 166 L1399 560 Q1399 570 1388 569 L986 568 Q978 568 979 556 L980 166 Q978 155 987 156 Z" fill="#eef5ff" stroke="#3469a3" stroke-width="2.5"/><path d="M984 160 L1395 159 L1394 564 L985 563 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".26"/>
+<text class="head" x="66" y="199">1. You prepare</text>
+<text class="body" x="66" y="246">Application and backend identity</text>
+<text class="body" x="66" y="280">with access to both routes</text>
+<text class="body" x="66" y="334">Two working model services</text>
+<text class="body" x="66" y="368">and enough backup capacity</text>
+<text class="body" x="66" y="423">Approved processing locations</text>
+<text class="body" x="66" y="457">and model compatibility</text>
+<text class="small" x="66" y="534">Test each route on its own.</text>
+<text class="head" x="536" y="199">2. Library handles</text>
+<text class="body" x="536" y="246">One attempt at the primary</text>
+<text class="body" x="536" y="280">configured service</text>
+<text class="body" x="536" y="334">Checks your failure policy</text>
+<text class="body" x="536" y="368">and replay-safe declaration</text>
+<text class="body" x="536" y="423">At most one backup attempt</text>
+<text class="body" x="536" y="457">using its own token provider</text>
+<text class="small" x="536" y="534">Returns a result or an error.</text>
+<text class="head" x="1005" y="199">3. You operate</text>
+<text class="body" x="1005" y="246">User authorization and</text>
+<text class="body" x="1005" y="280">monitoring of requests</text>
+<text class="body" x="1005" y="334">Application availability and</text>
+<text class="body" x="1005" y="368">all dependencies it needs</text>
+<text class="body" x="1005" y="423">Real failure and recovery tests</text>
+<text class="body" x="1005" y="457">against your acceptance goals</text>
+<text class="small" x="1005" y="534">Own alerts and the runbook.</text>
+<path class="line" d="M 467 349 L 502 349" marker-end="url(#arrow)"/><path class="line" d="M 937 349 L 973 349" marker-end="url(#arrow)"/><text class="head" x="40" y="621">The model and serving mode change what you must provision</text>
+<path d="M48 651 L692 649 Q701 650 700 661 L699 915 Q699 925 688 924 L47 923 Q39 923 40 911 L41 661 Q39 650 48 651 Z" fill="#fff8e9" stroke="#9c7134" stroke-width="2.5"/><path d="M45 655 L695 654 L694 919 L46 918 Z" fill="none" stroke="#9c7134" stroke-width="1" opacity=".26"/>
+<text class="head" x="66" y="695">Hosted pay-per-token</text>
+<text class="small" x="66" y="740">Enable model access and verify quota on both routes.</text>
+<text class="small" x="66" y="775">Confirm model availability and allowed processing</text>
+<text class="small" x="66" y="810">locations for the exact service you plan to call.</text>
+<text class="body" x="66" y="861">Two workspace URLs do not prove independent</text>
+<text class="body" x="66" y="895">model regions.</text>
+<path d="M748 651 L1392 649 Q1401 650 1400 661 L1399 915 Q1399 925 1388 924 L747 923 Q739 923 740 911 L741 661 Q739 650 748 651 Z" fill="#fff8e9" stroke="#9c7134" stroke-width="2.5"/><path d="M745 655 L1395 654 L1394 919 L746 918 Z" fill="none" stroke="#9c7134" stroke-width="1" opacity=".26"/>
+<text class="head" x="766" y="695">Provisioned throughput</text>
+<text class="small" x="766" y="740">Deploy endpoints for an eligible model and version.</text>
+<text class="small" x="766" y="775">Size primary and backup for the required workload.</text>
+<text class="small" x="766" y="810">Verify placement, capacity and failure isolation.</text>
+<text class="body" x="766" y="861">Model eligibility must be checked. Not every model</text>
+<text class="body" x="766" y="895">supports this serving mode.</text>
+<text class="note" x="40" y="981">A stopped application cannot run its failover library.</text>
+</svg>
