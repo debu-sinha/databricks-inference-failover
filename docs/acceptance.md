@@ -96,6 +96,23 @@ Do not test ambiguous replay with business side effects until D2 is accepted. Se
 
 Map the application's hosting, DNS, ingress, identity, secrets and observability dependencies before E4. Workspace location alone is not inference-location evidence. Review the applicable [processing-location documentation](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/foundation-model-apis/compliance). A locally returned 503 does not establish regional DR.
 
+## F. Shared gateway integration
+
+These cases apply when several applications need one API address with routing managed centrally. No shared gateway, APIM policy or shared Python service has been deployed or tested by this repository. Existing client tests and live calls do not pass these cases. Evaluate an existing gateway before adding another service. See [ADR 002](adr-002.md).
+
+| ID | Prerequisite and test | Pass evidence |
+| --- | --- | --- |
+| F1 | An agreed inbound API contract and exact backend model mapping. Send the real application request through the chosen shared layer to each route independently. | Request fields, response shape, model/version, error mapping and supported options match the application contract. Unsupported streaming or tool requests are rejected clearly rather than silently altered |
+| F2 | The shared layer's actual caller authentication, tenant policy and Databricks credential integration. Test allowed and denied callers, forbidden models, each backend identity and token renewal. | Unauthorized calls stop before inference. Route credentials remain bound to the intended host. The backup does not widen the caller's allowed data locations, model access or privileges |
+| F3 | The deployed gateway's documented retry, circuit-breaker and recovery policy. Exercise the approved primary failure, both routes failing and primary restoration. | Measured attempt count, errors, latency, backup use and recovery match that policy. A per-request retry is not reported as persistent traffic switching, and one instance's state is not assumed to represent every instance |
+| F4 | An approved outage of the primary workspace entrypoint, with independent gateway availability and network monitoring. | Applications continue through the same agreed API address within the recovery objective. Actual destination use is established. A synthetic model error does not pass this workspace-entrypoint case |
+| F5 | An approved gateway-instance or gateway-region outage test, including DNS, ingress, identity, secrets and networking. | The shared entrypoint remains available or recovers within the accepted objective. Backend redundancy alone is not accepted as gateway availability |
+| F6 | Representative multi-application load with tenant admission controls and backup capacity. | The admitted load, cost, error rate and latency meet agreed thresholds without retry multiplication or cross-tenant access. Healthy traffic is measured after restoration |
+
+For an existing API gateway, retain its exact tier, deployment mode, policies and backend authentication configuration with the results. For a custom Python service, also test its HTTP server, bounded concurrency, cancellation, health checks, deployment and rollback. These controls are not supplied by importing this library. Do not assume an Azure identity token is the Databricks credential accepted by either route. Verify the selected authentication integration explicitly.
+
+Keep model-backend failure, workspace-entrypoint failure and shared-gateway failure as separate acceptance cases. Confirm effective routing and access configuration before each authorized test. A rate-limit response by itself is not evidence of a regional outage.
+
 ## Record results and accept the scope
 
 For each case retain its ID, status, owner, date, command, package commit, runtime version, sanitized configuration, timestamps, attempt metadata and applicable server request IDs. Keep exact topology, identities and traces in approved private storage. Do not commit credentials, prompts, customer outputs, internal tickets or work screenshots.

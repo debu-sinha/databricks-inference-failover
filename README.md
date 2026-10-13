@@ -1,20 +1,22 @@
 # Databricks inference failover
 
-A Python library that runs inside your application and can try a configured backup model-service route when the primary request fails.
+A reference design for centrally managed inference routing, with a Python client that can try a configured backup Databricks model-service route.
 
-**Status: reference implementation. Live deployment acceptance is pending.** The library controls application requests. It does not provision a model, reserve capacity, configure Gateway fallback or establish that two routes use independent regions. Read the [validation record](docs/validation.md) before using it in production.
+**Status: client library tested within the recorded scope. Shared gateway integration not implemented or validated.** This repository does not deploy a shared API, provision models, reserve capacity or establish independent inference regions. Read the [validation record](docs/validation.md) before using it in production.
 
 ## What we are proposing
 
-You keep your application. Its Python backend imports this library and calls a primary model service. If an approved failure occurs and repeating the request is safe, the library can make one attempt at a backup service. The application receives the completed text or an error.
+Applications call one shared API. That routing layer selects between two approved Databricks routes serving the same model and approved version. It owns the fallback policy centrally, so each application does not have to implement regional routing.
 
-You provide two working routes, credentials and permissions for each, enough backup capacity, and an application that stays available during the failure you want to cover. This package does not create that infrastructure. It needs no notebook or Spark cluster.
+If you already use Azure API Management, evaluate keeping routing there first. APIM has backend pools and circuit breakers. Its policies, Databricks authentication, request mapping and recovery behavior still need configuration and integration tests. Python from this repository does not run inside an APIM policy. [APIM backends](https://learn.microsoft.com/en-us/azure/api-management/backends).
 
-An application using the library could run as a Databricks App. That is an optional hosting choice. This repository does not deploy an App, implement user sign-in or include a tested Apps-specific authentication setup.
+The shipped code is an optional client component. A shared Python backend could import it, or an individual application could use it when central routing is not required. It is not a separate server, and using an existing gateway does not require adding another one. See [the shared-routing decision](docs/adr-002.md).
+
+You prepare the two model routes, credentials, permissions, backup capacity and a shared entrypoint that survives the failures you want to cover. Databricks Apps is one possible host for a custom Python backend, not a requirement. This repository does not deploy an App or validate its authentication or regional availability.
 
 **Read the [first-time setup guide](docs/start-here.md) before configuring anything.** It explains the two identities, the setup you own, hosted pay-per-token versus provisioned throughput, and what the tests do and do not prove.
 
-![What you prepare, what the library handles, and what you operate](docs/setup-ownership.png)
+![Proposed shared entrypoint and separately configured Databricks routes](docs/shared-routing.png)
 
 ## Try the library locally
 
@@ -32,9 +34,9 @@ python -m pytest -q
 
 The demo and local tests use synthetic responses. They need no Databricks credentials and make no billable model calls. They demonstrate client behavior, not a regional outage.
 
-## Add it to an application
+## Use the optional Python client
 
-Install the package in your application's Python backend. Your web application, API handler or background worker imports it and supplies two destinations. The library is not a separate service. It does not need a notebook or Spark cluster.
+Install the package in the Python backend that owns the request. That could be a shared service or one application. It supplies two destinations and handles the returned result or error. This is a component-level example, not a shared HTTP API. It does not need a notebook or Spark cluster.
 
 ```python
 from inference_failover import Destination, FailoverClient, Policy
@@ -67,7 +69,7 @@ with FailoverClient(primary, backup, policy=policy) as client:
 
 This is an integration sketch. `primary_auth`, `backup_auth` and the destination settings belong to your application. The [runnable example](examples/application.py) reads environment variables and starts in preview mode. It does not renew tokens. See [identity and access](docs/identity-and-access.md) for the production authentication boundary.
 
-Each destination needs its exact HTTPS Azure Databricks workspace URL and three-part Unity Gateway model-service name. The two service names can differ, but you must verify that both provide the required model and version. Do not substitute a legacy serving-endpoint name.
+Each destination needs its exact HTTPS Azure Databricks workspace URL and three-part Unity Gateway model-service name. The two service names can differ, but both must provide the same approved model and version for this design. The library does not verify that mapping or pin a provider alias. Do not substitute a legacy serving-endpoint name.
 
 ## What happens on failure
 
@@ -81,7 +83,7 @@ No HTTP status permits fallback by default. The example opts into 502, 503 and 5
 
 Timeouts and lost connections leave completion uncertain. Ambiguous replay is disabled by default. Enabling it can produce duplicate work or charges. An operation ID correlates attempts. It is not an idempotency guarantee.
 
-## How it fits
+## Optional Python client integration
 
 ![Application and Databricks identity boundaries](docs/architecture.png)
 
@@ -103,4 +105,4 @@ Unity Gateway's [Unified Responses interface](https://learn.microsoft.com/en-us/
 - Add integration tests for your exact model, network, identity and API before enabling a new behavior.
 - Keep application authorization ahead of the library call. Never let end users choose arbitrary destinations or service names.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the review and test commands. The initial design and tradeoffs are in [the implementation plan](docs/implementation-plan.md) and [ADR 001](docs/adr-001.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the review and test commands. [ADR 002](docs/adr-002.md) records the shared-routing proposal. [ADR 001](docs/adr-001.md) records the earlier client-only decision and still describes the shipped client's behavior.

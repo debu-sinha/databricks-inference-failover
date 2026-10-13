@@ -1,14 +1,24 @@
-# Integrate with a production application
+# Prepare the shared routing deployment
 
-This is a reference library and an acceptance plan. Installing it is not production approval. The application owner must validate identity, both model routes, recovery behavior and capacity in the intended environment.
+This repository contains a reference client and an acceptance plan. The target deployment gives applications one API and manages routing centrally to the same approved model/version. Installing the package does not deliver that endpoint or approve production use.
 
-## Put the client in the backend
+## Select the routing owner first
 
-Import `FailoverClient` in the existing Python API service or worker. Keep the application's user authentication and data authorization ahead of the inference call. Put destination settings under deployment configuration, not user control. The client is synchronous. Run it in a bounded worker when the application uses an async request handler. A cancelled waiting task does not prove the worker or upstream request stopped.
+Evaluate the existing gateway before adding a Python service. For APIM, prepare backend configuration, route-specific authentication, model and request mapping, replay policy and operational tests. Its backend pools and circuit breakers are documented capabilities. This repository contains no tested APIM policies or deployment. Python from the package cannot be placed inside an APIM policy. [APIM backends](https://learn.microsoft.com/en-us/azure/api-management/backends).
 
-The library has no persistent health state. Each operation starts at primary and may try backup once. It does not switch all application traffic, replicate data or decide when an outage has ended. If you need circuit breaking, shared traffic policy or controlled failback, design those mechanisms and their concurrency tests separately.
+Keep a route worksheet with each workspace, regional metastore, service, approved model/version, capacity and runtime identity. For PT, prepare a region-local model service and PT endpoint in each regional metastore, with cross-workspace routing outside those services. For PPT, obtain evidence of processing locations and capacity independence rather than inferring them from workspace URLs.
+
+Decide which layer owns retries and which owns persistent health state. APIM uses lower-priority backends only when all higher-priority backends are unavailable because their circuit breakers are tripped. That differs from this client's immediate, per-request backup decision. Define behavior for the first failed request, subsequent requests, both routes failing and restoration before deployment. [Backend priority routing](https://learn.microsoft.com/en-us/azure/api-management/backends#load-balanced-pool).
+
+## If the selected design needs the client
+
+Import `FailoverClient` into the shared Python API service or worker. Individual applications can also use it, but that is an alternative to the single shared routing requirement. Keep caller authentication and tenant/data authorization ahead of inference. Put destination settings under deployment control, not user control. The client is synchronous. Run it in a bounded worker when the service uses an async handler. A cancelled waiting task does not prove the worker or upstream request stopped.
+
+The library has no persistent health state. Each operation starts at primary and may try backup once. It does not switch all traffic, replicate data or decide when an outage has ended. The shared service must define its API error for `FailoverError`, admission controls and deployment behavior. If it needs circuit breaking or controlled failback, design those mechanisms and their concurrency tests separately.
 
 ## Use renewable credentials
+
+The following applies to the Python OAuth example. An APIM integration needs its own reviewed credential-acquisition and renewal setup. The example does not configure APIM authentication.
 
 The [OAuth example](../examples/application_oauth.py) uses a separate SDK `Config` for each destination, with explicit host, client ID, client secret and `auth_type='oauth-m2m'`. Each callback calls `Config.authenticate()` and extracts its bearer header. SDK 0.110.0's M2M provider uses a refreshable token source. [SDK authentication](https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html), [SDK source](https://github.com/databricks/databricks-sdk-py).
 
@@ -28,14 +38,16 @@ Time budgets are cooperative. Token callbacks, DNS resolution, slowly arriving H
 
 ## Deploy and accept in stages
 
-1. Pin and package the reviewed version. Install the `auth` extra only if using the M2M example.
-2. Confirm both destinations, model compatibility, grants, approved data-processing locations and capacity with the administrators.
+1. Select and review the shared routing integration. If it uses the Python client, pin and package the reviewed version. Install the `auth` extra only if using the M2M example.
+2. Confirm both destinations, the same approved model/version, grants, approved processing locations and capacity with the administrators. Document model alias changes and prevent silent substitution.
 3. Validate production-style identity in nonproduction, including issuance, expiry, renewal, revocation and rotation.
-4. Test primary and backup independently. Then test the approved failure and recovery cases using synthetic inputs.
+4. Test primary and backup independently through the shared API. Then test approved failure and recovery cases, including both routes failing, using synthetic inputs. Verify caller authorization and error responses too.
 5. Run representative load against an approved test environment. Measure success rate, p95/p99 latency, fallback rate, concurrent requests and cost. Agree thresholds before the run.
-6. Release to a bounded portion of traffic with an owner monitoring results. Keep a deployment rollback and a way to disable fallback. A reference-client rollback does not restore application data or undo upstream requests.
+6. Release to a bounded portion of traffic with an owner monitoring results. Keep a deployment rollback and a way to disable fallback. Define the restoration checks before returning traffic to primary. A client rollback does not restore data or undo upstream requests.
 
-Application hosting, ingress, identity and secret stores can be shared failure points. Two workspace URLs do not establish independent inference regions. A complete DR decision needs actual topology and processing-location evidence. See [architecture](architecture.md).
+Shared gateway hosting, ingress, identity and secret stores can be shared failure points. A Databricks App is an optional host for a custom backend, not a tested deployment in this repository. APIM regional gateway availability is separate from backend fallback and depends on the selected tier and network setup. [APIM multi-region deployment](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-deploy-multi-region).
+
+Two workspace URLs do not establish independent inference regions. A complete DR decision needs actual topology and processing-location evidence. See [architecture](architecture.md).
 
 ## Operational signals
 

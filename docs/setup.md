@@ -4,6 +4,14 @@ Read [what you need to build](start-here.md) first. It separates hosted pay-per-
 
 Start locally. You need Python 3.11 or later and a terminal. You do not need a notebook, Spark cluster or Databricks credentials for the offline demonstration.
 
+## Choose the integration point first
+
+If applications already call a shared API gateway, evaluate routing between the two Databricks workspace entrypoints there first. That can keep regional routing in one place. The gateway still needs an agreed request/response contract, caller authorization, destination-specific Databricks authentication and its own availability design. This repository does not install those policies or deploy that gateway. Read [the shared-routing decision](adr-002.md).
+
+The commands below install and exercise the Python client only. Use them if an individual Python application or a shared Python backend will own these calls. An API gateway that implements the required policy directly might not need this library. Python package installation is not an APIM policy deployment, and the examples do not expose an HTTP endpoint for other applications.
+
+Before choosing either path, write down who owns the application-facing API address, the request format, user and tenant authorization, the two workspace credentials, the model mapping and the recovery procedure. Keep these decisions in the deployment record. Do not enable separate, overlapping retry policies without an agreed total attempt and latency budget.
+
 ## 1. Install and run offline
 
 ```bash

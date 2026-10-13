@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1060" viewBox="0 0 1440 1060" role="img" aria-labelledby="title desc">
+<title id="title">One shared layer chooses the workspace</title>
+<desc id="desc">Proposed topology, not deployed by this repository. Applications call a customer-managed shared routing layer. That layer owns caller access, route credentials and workspace failover policy. It calls a primary Databricks workspace in planned region A or a backup workspace in planned region B, each with a local metastore and model service. Actual model-processing locations, independent failure domains and capacity must be verified. The optional Python library only performs bounded per-request fallback. Shared-service deployment and availability remain operator responsibilities.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>text {font-family:'Chalkboard SE','Comic Sans MS',sans-serif;fill:#263442} .title {font-size:33px;font-weight:700} .head {font-size:26px;font-weight:700} .body {font-size:23px} .small {font-size:22px} .note {font-size:24px;font-weight:700} .line {fill:none;stroke:#475569;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round}</style></defs>
+<rect width="1440" height="1060" fill="white"/>
+<text class="title" x="40" y="53">One shared layer chooses the workspace</text>
+<text class="body" x="40" y="94">Proposed topology. This repository does not deploy it.</text>
+<path d="M48 269 L287 267 Q296 268 295 279 L294 460 Q294 470 283 469 L47 468 Q39 468 40 456 L41 279 Q39 268 48 269 Z" fill="#f1f5f9" stroke="#475569" stroke-width="2.5"/><path d="M45 273 L290 272 L289 464 L46 463 Z" fill="none" stroke="#475569" stroke-width="1" opacity=".26"/>
+<text class="head" x="62" y="311">Applications</text>
+<text class="body" x="62" y="356">Web apps, services</text>
+<text class="body" x="62" y="391">and other callers</text>
+<text class="body" x="62" y="426">Use one shared URL</text>
+<path d="M363 155 L957 153 Q966 154 965 165 L964 771 Q964 781 953 780 L362 779 Q354 779 355 767 L356 165 Q354 154 363 155 Z" fill="#eef5ff" stroke="#3469a3" stroke-width="2.5"/><path d="M360 159 L960 158 L959 775 L361 774 Z" fill="none" stroke="#3469a3" stroke-width="1" opacity=".26"/>
+<text class="head" x="383" y="196">Customer-managed shared routing layer</text>
+<text class="small" x="383" y="235">One logical entry point for your applications</text>
+<text class="body" x="383" y="296">Authenticates and authorizes callers</text>
+<text class="body" x="383" y="339">Supplies credentials for each workspace</text>
+<text class="body" x="383" y="382">Chooses a workspace and applies failover policy</text>
+<text class="small" x="383" y="440">Deploy and operate this layer yourself.</text>
+<path d="M391 486 L928 484 Q937 485 936 496 L935 727 Q935 737 924 736 L390 735 Q382 735 383 723 L384 496 Q382 485 391 486 Z" fill="#fff8e9" stroke="#9c7134" stroke-width="2.5"/><path d="M388 490 L931 489 L930 731 L389 730 Z" fill="none" stroke="#9c7134" stroke-width="1" opacity=".26"/>
+<text class="head" x="405" y="526">Optional library in a Python backend</text>
+<text class="small" x="405" y="571">One primary attempt, at most one backup</text>
+<text class="small" x="405" y="607">Checks your policy and replay-safe declaration</text>
+<text class="small" x="405" y="643">Bounded fallback for the current request</text>
+<text class="small" x="405" y="701">No shared health state or circuit breaker</text>
+<path class="line" d="M 296 368 Q 321 364 349 368" marker-end="url(#arrow)"/><path d="M1051 155 L1392 153 Q1401 154 1400 165 L1399 431 Q1399 441 1388 440 L1050 439 Q1042 439 1043 427 L1044 165 Q1042 154 1051 155 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.5"/><path d="M1048 159 L1395 158 L1394 435 L1049 434 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".26"/>
+<text class="head" x="1065" y="196">Primary workspace</text>
+<text class="small" x="1065" y="236">Databricks, planned region A</text>
+<text class="body" x="1065" y="281">Local metastore</text>
+<text class="body" x="1065" y="314">+ model service</text>
+<text class="small" x="1065" y="373">Access controls + configured</text>
+<text class="small" x="1065" y="405">backend routing</text>
+<path d="M1051 494 L1392 492 Q1401 493 1400 504 L1399 770 Q1399 780 1388 779 L1050 778 Q1042 778 1043 766 L1044 504 Q1042 493 1051 494 Z" fill="#eff8f0" stroke="#4d7956" stroke-width="2.5"/><path d="M1048 498 L1395 497 L1394 774 L1049 773 Z" fill="none" stroke="#4d7956" stroke-width="1" opacity=".26"/>
+<text class="head" x="1065" y="535">Backup workspace</text>
+<text class="small" x="1065" y="575">Databricks, planned region B</text>
+<text class="body" x="1065" y="620">Local metastore</text>
+<text class="body" x="1065" y="653">+ model service</text>
+<text class="small" x="1065" y="712">Access controls + configured</text>
+<text class="small" x="1065" y="744">backend routing</text>
+<path class="line" d="M 966 296 Q 1001 292 1037 296" marker-end="url(#arrow)"/><path class="line" d="M 966 636 Q 1001 632 1037 636" marker-end="url(#arrow)" stroke-dasharray="8 7"/><text class="small" x="1055" y="474">Backup only under your policy</text>
+<path d="M 40 830 Q 720 827 1400 831" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text class="note" x="40" y="875">Verify actual model-processing locations, failure isolation and backup capacity.</text>
+<text class="body" x="40" y="916">Workspace region labels alone do not establish independent model regions.</text>
+<text class="body" x="40" y="957">The library is optional Python code. It does not run inside APIM or Unity Gateway.</text>
+<text class="body" x="40" y="998">This repo does not supply a deployed shared service or keep that service available.</text>
+</svg>

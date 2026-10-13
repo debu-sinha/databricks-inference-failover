@@ -16,6 +16,16 @@ Use application authentication for the user, application authorization for the r
 
 The application must not treat a client-supplied user ID or request tag as proof of identity. Derive any audit correlation from the verified session. Keep Databricks bearer tokens in the backend. Do not return them to the browser or put them in URLs.
 
+## When applications call a shared routing service
+
+A shared gateway adds another access boundary. The application authenticates to that service under an agreed machine or delegated-user contract. The shared service verifies the caller, applies the caller's approved model and tenant policy, and selects an allowed route. It then authenticates separately to the chosen Databricks workspace.
+
+The shared service must not accept an arbitrary workspace URL, model-service name, tenant ID or privileged credential from an untrusted caller. Derive routing permissions from verified identity and controlled configuration. A backup must stay within the same caller's approved model and data-processing policy. A routing failure does not grant broader access.
+
+When the shared service uses a service principal, Databricks checks that principal's grants. The caller's application identity is not automatically a Databricks end-user identity. The service must preserve its own trusted audit mapping without treating a user header as authorization. If individual Databricks user enforcement is required, design and test delegation as described below.
+
+The Python callback example only covers the final outbound Databricks credential boundary. It does not authenticate callers to a shared gateway, exchange their tokens, or configure APIM managed identity. Those are integration work with their own tests. See [shared-routing acceptance](acceptance.md#f-shared-gateway-integration).
+
 ## Token acquisition and refresh
 
 Databricks-managed service principals support OAuth M2M for unattended applications. Supported unified-authentication clients manage token generation and refresh. A manually obtained token expires after one hour and needs renewal. Workspace-issued tokens are limited to that workspace. Account-issued tokens have different scope, so do not assume tokens are interchangeable. Microsoft Entra-managed service principals use a separate documented authentication path. [OAuth M2M](https://learn.microsoft.com/en-us/azure/databricks/dev-tools/auth/oauth-m2m).

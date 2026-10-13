@@ -1,45 +1,66 @@
-# Where the client fits
+# One shared API, two configured routes
 
-This is a proposed application integration, not a validated regional deployment. Install the `inference_failover` library in the backend that already handles application requests. It makes outbound HTTPS inference calls. It does not run inside Unity Gateway, and it does not require a notebook or an attached cluster.
+The target is one application-facing API with centrally managed routing to the same approved model and version. The shared routing layer selects a Databricks workspace entrypoint. Applications do not need to select a region or implement their own failover policy.
 
-![Application-owned fallback and identity boundaries](architecture.png)
+This is a proposed architecture. The repository supplies a Python client and examples. It does not deploy the shared API, configure APIM or establish regional recovery. [ADR 002](adr-002.md) explains the scope.
+
+![Proposed shared routing outside the regional Databricks services](shared-routing.png)
+
+## Start with the existing gateway
+
+Evaluate an existing gateway before building another service. Azure API Management supports backend pools, priorities and circuit breakers. Those are useful building blocks, not a tested Databricks integration in this repository. The chosen deployment still needs route-specific authentication, API and model mapping, a replay policy and recovery tests. Python code from this package does not run inside APIM policies. [APIM backends](https://learn.microsoft.com/en-us/azure/api-management/backends).
+
+If a custom Python backend is needed, it can import `FailoverClient`. That backend must supply an HTTP API, caller authentication, request admission, bounded concurrency, health checks and hosting. A Databricks App is an optional host. There is no deployed App, tested Apps authentication path or hosting availability claim here.
+
+## Prepare each regional route
+
+For the PT design, configure a workspace and metastore in each approved region, with a region-local model service and its PT destination. Route switching across workspace entrypoints stays in the customer-managed layer. Do not make one model service depend on PT destinations across the two metastores. Each route needs the same approved model/version, adequate capacity and verified grants. [Regional metastores](https://learn.microsoft.com/en-us/azure/databricks/data-governance/unity-catalog/create-metastore), [PT deployment](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/foundation-model-apis/deploy-prov-throughput-foundation-model-apis).
+
+For hosted pay-per-token models, two workspace URLs do not prove independent regional inference. Processing can occur outside the workspace region under the applicable Geo rules. Model availability, capacity independence and processing locations need separate confirmation. Do not apply the PT deployment picture to a hosted GPT service. [Data processing and residency](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/foundation-model-apis/compliance#data-processing-and-residency).
+
+The service names can differ. Operators must verify that both map to the required model and approved version, including any provider alias change policy. The library does not discover or enforce this mapping.
 
 ## Request flow
 
-1. The user signs into your application. Your backend verifies the session and decides whether that user can use this feature and access the data in the prompt.
-2. The backend calls `FailoverClient.generate`. Configuration supplies the exact primary and backup workspace URLs, model-service names and separate token callbacks.
-3. The client obtains the primary credential and makes one nonstreaming request to the primary route.
-4. A backup request happens only when the caller sets `replay_safe=True` and the failure matches the explicitly configured policy. Default policy allows no fallback. Transport errors also require `allow_ambiguous_replay=True` because the first request might have completed upstream.
-5. The caller receives a completed text result and attempt metadata, or a `FailoverError`. Every new operation starts at primary. There is no persistent circuit breaker, automatic health probe or scheduled failback in this version.
+1. The application authenticates its user and checks the data and actions allowed for that user. The shared API authenticates the calling application and enforces its own access and admission policy.
+2. The shared routing layer selects the configured primary workspace and service. It obtains an authorized credential for that route.
+3. It sends the model request. A backup attempt depends on the configured failure criteria and whether replay is safe. A timeout or lost connection can leave the original completion unknown.
+4. It returns a completed response, or the agreed API error when neither route completes. It must not silently substitute another model or return an old answer as a successful new completion.
+5. Its operating policy determines how subsequent requests are routed and when primary traffic resumes. That policy must be tested separately from one successful backup request.
 
-The library posts to `/ai-gateway/mlflow/v1/responses` with a fully qualified model-service name. This is the documented unified Unity Gateway interface. It is different from legacy Model Serving endpoint paths. [Query model services](https://learn.microsoft.com/en-us/azure/databricks/ai-gateway/query-model-services).
+Steps 1 and 5, plus the shared HTTP interface, are not implemented by this library.
+
+## If a Python backend uses the client
+
+![Client integration and identity boundaries](architecture.png)
+
+The backend calls `FailoverClient.generate` with two configured destinations. The library obtains the primary token and sends one synchronous, text-only, nonstreaming request to `/ai-gateway/mlflow/v1/responses`. This is Unity Gateway's Unified Responses interface, not a legacy Model Serving endpoint path. [Query model services](https://learn.microsoft.com/en-us/azure/databricks/ai-gateway/query-model-services).
+
+The client attempts backup only when `replay_safe=True`, the failure matches the explicit policy and time remains. Default policy permits no fallback. Transport uncertainty also requires `allow_ambiguous_replay=True`. It returns completed text and attempt metadata or raises `FailoverError`. The HTTP layer must map that error to its API contract.
+
+Each new operation starts at primary. There is no persistent circuit breaker, health probe or scheduled failback. Time budgets are cooperative. Synchronous token acquisition, DNS and slow socket reads can exceed a nominal deadline. A cancelled local task does not prove an upstream request stopped. See [production integration](production.md).
+
+## Three separate failure boundaries
+
+| Failure | Where it is handled in the proposed design |
+| --- | --- |
+| One destination behind a responding Unity Gateway model service fails | Native destination fallback, if configured and supported |
+| A configured workspace entrypoint or its route fails | The customer-managed shared routing layer selects the other route under its policy |
+| The shared gateway, its host, identity or network fails | The deployment's availability and recovery design. The client cannot repair its own unavailable host |
+
+Native Unity Gateway fallback and shared-layer retries can both make attempts. Review them together because one shared-layer attempt can contain several Gateway destination attempts. The package does not modify Gateway routing. [Gateway routing and fallbacks](https://learn.microsoft.com/en-us/azure/databricks/ai-gateway/configure-traffic-splitting).
+
+A shared endpoint must itself survive the agreed failure. For APIM, regional gateway deployment and backend routing are separate configurations. Supported tiers, network mode and recovery behavior must be checked against the chosen deployment. [APIM multi-region deployment](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-deploy-multi-region).
 
 ## Who owns each part
 
 | Part | Responsibility |
 | --- | --- |
-| Application backend | User authentication, tenant and data authorization, request admission, whether replay is safe, and handling the returned result |
-| This library | At most one application-owned attempt per destination, explicit fallback policy, bounded response parsing and attempt metadata |
-| Token provider | Acquire and refresh credentials for its configured destination, protect secrets, and impose its own timeout |
-| Databricks administrators | Workspace access, service grants, model-service configuration and approved data-processing policy |
-| Deployment and operations team | Application availability, DNS and networking, capacity, alerting, recovery tests and release acceptance |
+| Databricks platform | Serve configured models, enforce service permissions and provide supported destination routing |
+| This library | Bounded primary/backup client attempts, explicit replay policy, response parsing and attempt metadata |
+| Shared routing layer | Single API, caller authentication, approved model mapping, route credentials, response contract and central routing policy |
+| Operators | Workspace and model setup, grants, capacity, secret lifecycle, gateway availability, monitoring and recovery acceptance |
 
-A web service or worker can host this library. Containers, virtual machines or a managed application platform are deployment choices, not dependencies of the reference client. Choosing Databricks Apps or any other host does not by itself establish regional survivability. The application host, identity service, secret store and network all belong in the recovery design.
+Before production, verify both routes independently with the intended identity and model. Test actual authorized faults, both routes failing, token renewal, backup load, gateway availability and restoration. Neither a synthetic client error nor a later primary success proves regional recovery. See the [acceptance plan](acceptance.md).
 
-## Two fallback layers
-
-Unity Gateway can perform its own ordered destination fallback within a model service. The application may then make a separate call to the configured backup workspace URL. Review both policies together because one application attempt can contain several Gateway attempts. [Gateway routing and fallbacks](https://learn.microsoft.com/en-us/azure/databricks/ai-gateway/configure-traffic-splitting).
-
-This library does not modify Gateway configuration or move model capacity. A backup route must already work with the intended identity, model, input shape and load. Prefer the same validated model contract on both routes. Any model change needs an application-quality review.
-
-## What this does not prove
-
-Two workspace URLs do not prove two independent inference regions. Foundation Model API processing depends on the workspace and model and can occur outside the workspace region within the relevant Geo. Confirm the actual failure domains and approved processing locations before describing this as regional DR. [Data processing and residency](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/foundation-model-apis/compliance#data-processing-and-residency).
-
-This version supports text-only, stateless, nonstreaming generation. It does not execute tools, resume streams, migrate conversation state, replicate application data or reserve backup capacity. A timeout can leave completion unknown. Replay can produce duplicate work or charges. Time budgets are cooperative, not hard wall-clock guarantees. The synchronous token callback and operating-system DNS lookup are not forcibly interrupted. Slowly arriving HTTP status or header bytes and repeated low-level socket reads can also exceed an intended attempt budget before control returns to the deadline check.
-
-Before production acceptance, test the real credentials and refresh path, both routes independently, the approved failure cases, backup capacity, a later successful primary request and the application's behavior when both routes fail. Set the recovery-time target and acceptable failure rate before the test. Keep measured results separate from configuration intent.
-
-See [identity and access](identity-and-access.md), [implementation plan](implementation-plan.md) and [the architecture decision](adr-001.md).
-
-Public documentation checked October 13, 2026. Deployment-specific support and live validation remain separate checks.
+This client does not execute tools, resume streams, migrate conversations, replicate data or reserve capacity. The [validation record](validation.md) retains the exact executed scope and open checks.

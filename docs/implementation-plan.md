@@ -10,7 +10,9 @@ An operation tries primary once. A second call requires the caller to declare re
 
 ## Dependencies and call sites
 
-This starts in an empty repository. There are no existing production callers, inherited classes or consumers to migrate. The existing validation probe was reviewed as a design reference, but no private lab runner or internal material is copied here.
+The shipped client has four repository entry points. `python -m inference_failover` runs the offline demonstration. `examples/application.py` uses supplied token callbacks. `examples/application_oauth.py` creates explicit M2M credential contexts. `examples/validate_pair.py` runs bounded route checks and an optional locally injected failure. These callers, the public exports and their tests must be reviewed before changing `FailoverClient.generate` or its transport and authentication hooks. External use is not measured by this repository.
+
+The [shared-routing decision](adr-002.md) changes the proposed integration point, not this runtime API. The repository has no HTTP server, caller authentication, gateway policy deployment, persistent routing state or shared-service availability setup. A future shared service is a separate implementation with an accepted API contract and deployment tests. Do not describe this documentation revision as that service being delivered.
 
 The core library uses Python 3.11 or later and only standard-library networking, TLS, JSON and dataclasses. The optional OAuth example pins Databricks SDK 0.110.0 through the `auth` extra. `FailoverClient.generate` calls the injected transport once per destination. The default transport creates one HTTPS connection per attempt and closes it in `finally`. Token callbacks are called immediately before their own destination attempt.
 
